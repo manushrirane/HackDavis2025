@@ -18,9 +18,9 @@ class AppState(TypedDict):
     messages: list[BaseMessage]
 
 # Initialize LLMs
-visa_llm = ChatOpenAI(model_name="gpt-4", temperature=0.7)
-checklist_llm = ChatOpenAI(model_name="gpt-4", temperature=0.7)
-search_query_llm = ChatOpenAI(model_name="gpt-4", temperature=0.2)  # Optional
+visa_llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.7)
+checklist_llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.7)
+search_query_llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2)  # Optional
 
 # Tavily Search Tool
 search = TavilySearchResults(max_results=7, search_depth="basic")
@@ -70,17 +70,17 @@ def checklist_agent(state: Dict) -> Dict:
     return {"messages": messages}
 
 # Create the graph
+# Build the graph
 builder = StateGraph(AppState)
+builder.add_node("search", search_tool)
+builder.add_node("visa_agent", visa_agent)
+builder.add_node("checklist_agent", checklist_agent)
 
-# Define the flow: Start → Visa Agent → Checklist Agent → End
-builder.add_node("VisaAgent", visa_agent)
-builder.add_node("ChecklistAgent", checklist_agent)
-builder.set_entry_point("VisaAgent")
-builder.add_edge("VisaAgent", "ChecklistAgent")
-builder.add_edge("ChecklistAgent", END)
-
-# Optionally add a search tool (not part of default flow)
-builder.add_node("Search", search_tool)
+# Define the edges
+builder.set_entry_point("search")
+builder.add_edge("search", "visa_agent")
+builder.add_edge("visa_agent", "checklist_agent")
+builder.add_edge("checklist_agent", END)
 
 # Compile graph
 graph = builder.compile()
