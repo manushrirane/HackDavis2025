@@ -53,7 +53,13 @@ def checklist_agent(state: Dict) -> Dict:
     
     response = checklist_llm.invoke([system_prompt, messages[-1]])
     messages.append(response)
-    return {"messages": messages}
+    # Convert messages to a list of dicts (assuming each has a .content attribute)
+    json_ready = [{"content": m.content} for m in messages]
+
+    with open("items.json", "w") as f:
+        json.dump(json_ready, f, indent=4)
+
+    return {"messages": json_ready}
 
 # Create the graph
 # Build the graph
@@ -84,4 +90,6 @@ if __name__ == "__main__":
     # Print final output
     print("\n==== FINAL OUTPUT ====")
     for msg in final_state["messages"]:
-        print(f"\n[{msg.__class__.__name__}]\n{msg.content}")
+        print(f"\n[{msg.__class__.__name__}]\n{msg}")
+
+    

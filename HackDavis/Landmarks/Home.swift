@@ -139,6 +139,15 @@ struct MultiTimelineView: View {
     }
     // Replace this with actual GPT integration logic
            //u want the llm model to decide the icon ".document vs office vs fees prepare", and the title like "get ready for interview", and randomized progress. the number of timelines, and name of the Timeline will be decided by how many tasks they say they want to get done in the questionnarire. also the blue header text leads to checklist. the checklist displays info based off the status attribute.
+    func loadItems() -> [Timeline] {
+        guard let url = Bundle.main.url(forResource: "items", withExtension: "json"),
+            let data = try? Data(contentsOf: url) else {
+            return []
+        }
+
+        return (try? JSONDecoder().decode([Timeline].self, from: data)) ?? []
+    }
+
     func loadTimelinesFromGPT() {
         timelines = [
             Timeline(name: "F-1 Visa Application", steps: [
@@ -150,6 +159,7 @@ struct MultiTimelineView: View {
                 TimelineStep(type: .document, title: "Financial documents", progress: 1.0, status: .submitted, note: nil),
                 TimelineStep(type: .document, title: "Academic documents", progress: 1.0, status: .submitted, note: nil)
             ])
+            Timeline(name: , steps:)
         ]
     }
 }
@@ -206,6 +216,7 @@ struct Timeline: Identifiable {
         steps.map { $0.progress }.reduce(0, +) / Double(steps.count)
     }
 }
+
 
 struct TimelineStep: Identifiable {
     let id = UUID()
