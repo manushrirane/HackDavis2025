@@ -6,21 +6,34 @@ struct MultiTimelineView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                Text("Ongoing Processes")
-    
-                    .font(.title)
-                    .bold()
-                    .padding(.vertical, 10)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+               
+                Text("Dashboard")
+                    .font(.system(size: 50, weight: .bold))
 
-                Divider()
-                    .frame(height: 1)
-                    .background(Color.blue)
+                    .padding(.vertical,20)
+                    .padding(.horizontal,10)
                     .font(.title)
                     .bold()
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 0)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                Image("PNG image")
+                    .resizable()
+                    .frame(width: 400, height: 100)
+                Text("Ongoing Processes")
+                    .padding()
+                    .font(.title)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+              
+                 
+
+//                Divider()
+//                    .frame(height: 1)
+//                    .background(Color.blue)
+//                    .font(.title)
+//                    .bold()
+//                    .padding(.vertical, 10)
+//                    .padding(.horizontal, 0)
+//                    .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(spacing: 30) {
                     ForEach(timelines) { timeline in
@@ -145,7 +158,8 @@ struct MultiTimelineView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Dashboard")
+            
+//            .navigationTitle("Dashboard")
             .onAppear {
                 loadTimelinesFromGPT()
             }
