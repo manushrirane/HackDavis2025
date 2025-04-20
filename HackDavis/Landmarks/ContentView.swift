@@ -2,11 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State var navigateToTimeline = false
+    @EnvironmentObject var userData: UserData
     @State private var currentStep = 0
-    @State private var name = ""
-    @State private var country = ""
-    @State private var visaType = ""
-    @State private var help = ""
 
     let questions = ["What is your name?",
                      "What country are you from?",
@@ -25,9 +22,10 @@ struct ContentView: View {
         "Housing/Lease Guidance",
         "Tax Filing (Form 8843/1040NR)"
     ]
+
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color(.systemTeal), Color(.lightGray)]),
+            LinearGradient(gradient: Gradient(colors: [Color(.systemBlue), Color(.lightGray)]),
                            startPoint: .top,
                            endPoint: .bottom)
                 .ignoresSafeArea()
@@ -37,12 +35,14 @@ struct ContentView: View {
                     .font(.largeTitle)
                     .bold()
 
-                Text(questions[currentStep])
-                    .font(.headline)
-                    .padding()
+                if currentStep < questions.count {
+                    Text(questions[currentStep])
+                        .font(.headline)
+//                        .padding()
+                }
 
-                if currentStep == 4 {
-                    Picker("Select process", selection: $help) {
+                if currentStep == 3 {
+                    Picker("Select process", selection: $userData.help) {
                         ForEach(processOptions, id: \.self) { option in
                             Text(option)
                         }
@@ -59,25 +59,20 @@ struct ContentView: View {
                         .cornerRadius(20)
                         .padding(.horizontal)
                 }
+
+//                NavigationLink(destination: MultiTimelineView(), isActive: $navigateToTimeline) {
+//                    EmptyView()
+//                }
+
                 Button(action: {
-                    if currentStep < 4 {
+                    if currentStep < questions.count - 1 {
                         currentStep += 1
                     } else {
                         print("All responses collected!")
-                        print("Name: \(name)")
-                        print("Country: \(country)")
-                        print("Visa Type: \(visaType)")
-                        print("Process Help: \(help)")
+                        navigateToTimeline = true
                     }
-//                    if currentStep > 4 {
-//                        navigateToTimeline = true
-//                            
-//                        }
-                }
-                
-                )
-                {
-                    Text(currentStep < 4 ? "Next" : "Submit")
+                }) {
+                    Text(currentStep < questions.count - 1 ? "Next" : "Submit")
                         .foregroundColor(.white)
                         .padding()
                         .frame(maxWidth: .infinity)
@@ -92,15 +87,15 @@ struct ContentView: View {
 
     private func bindingForCurrentStep() -> Binding<String> {
         switch currentStep {
-        case 0: return $name
-        case 2: return $country
-        case 3: return $visaType
-        case 4: return $help
+        case 0: return $userData.name
+        case 1: return $userData.country
+        case 2: return $userData.visaType
+        case 3: return $userData.help
         default: return .constant("")
         }
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView().environmentObject(UserData())
 }
