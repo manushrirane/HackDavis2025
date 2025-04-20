@@ -7,11 +7,19 @@ struct MultiTimelineView: View {
         NavigationView {
             ScrollView {
                 Text("Ongoing Processes")
-                
+    
                     .font(.title)
                     .bold()
                     .padding(.vertical, 10)
-                    .padding(.horizontal, 30)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Divider()
+                    .frame(height: 1)
+                    .background(Color.blue)
+                    .font(.title)
+                    .bold()
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 0)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(spacing: 30) {
@@ -29,8 +37,8 @@ struct MultiTimelineView: View {
                                         Path { path in
                                             let y = geometry.size.height / 2
                                             let stepCount = timeline.steps.count
-                                            let spacing: CGFloat = 90
-                                            let totalWidth = CGFloat(stepCount - 1) * spacing
+                                            let spacing: CGFloat = 200
+                                            let totalWidth = CGFloat(stepCount) * spacing
                                             path.move(to: CGPoint(x: 0, y: y))
                                             path.addLine(to: CGPoint(x: totalWidth, y: y))
                                         }
@@ -78,19 +86,25 @@ struct MultiTimelineView: View {
                                                         .frame(width: 70)
                                                 }
                                             }
+                                        
                                         }
+                                        .padding(.horizontal, 0)
+                                       
                                     }
-                                    .padding(.horizontal)
+                                    
                                 }
                                 .padding(.vertical, 10)
                                 .frame(height: 100)
                             }
                         }
-                        .padding(.horizontal)
+                       
                     }
 
                     // Your Records Section
                     VStack(alignment: .leading, spacing: 10) {
+                        
+                        
+        
         
                         Text("Recent Records")
                             .font(.title)
@@ -221,71 +235,67 @@ struct MultiTimelineView: View {
     }
 }
 
+
 struct TimelineChecklistView: View {
     let timeline: Timeline
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            let spacing: CGFloat = 90
-            let totalWidth = CGFloat(timeline.steps.count) * spacing
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text(timeline.name)
+                    .font(.title)
+                    .bold()
+                    .padding(.top)
 
-            ZStack(alignment: .center) {
-                GeometryReader { geometry in
-                    Path { path in
-                        let y = geometry.size.height / 2
-                        path.move(to: CGPoint(x: 0, y: y))
-                        path.addLine(to: CGPoint(x: totalWidth, y: y))
-                    }
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 4)
+                Divider()
+                    .frame(height: 1)
+                    .background(Color.blue)
 
-                    Path { path in
-                        let y = geometry.size.height / 2
-                        let progressWidth = totalWidth * timeline.overallProgress
-                        path.move(to: CGPoint(x: 0, y: y))
-                        path.addLine(to: CGPoint(x: progressWidth, y: y))
-                    }
-                    .stroke(Color.blue, lineWidth: 4)
-                }
-                .frame(height: 60)
+                ForEach(timeline.steps) { step in
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: iconForStatus(step.status))
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundColor(colorForStatus(step.status))
 
-                HStack(spacing: spacing) {
-                    ForEach(timeline.steps) { step in
-                        NavigationLink(destination: TimelineStepDetail(step: step)) {
-                            VStack(spacing: 10) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color(.systemBackground))
-                                        .frame(width: 60, height: 60)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.gray.opacity(0.3), lineWidth: 6)
-                                        )
-                                    Circle()
-                                        .trim(from: 0.0, to: CGFloat(step.progress))
-                                        .stroke(Color.blue, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                                        .rotationEffect(.degrees(-90))
-                                        .frame(width: 60, height: 60)
-                                    Image(systemName: step.type.iconName)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 30, height: 30)
-                                        .opacity(0.8)
-                                }
-                                Text(step.title)
-                                    .font(.caption)
-                                    .multilineTextAlignment(.center)
-                                    .frame(width: 70)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(step.title)
+                                .font(.headline)
+
+                            if let note = step.note {
+                                Text(note)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                             }
+
+                            Text("Status: \(step.status.rawValue)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
                     }
+                    .padding(.vertical, 8)
                 }
-                .frame(width: totalWidth)
             }
-            .frame(height: 100)
-            .padding(.horizontal)
+            .padding()
         }
+        .navigationTitle("Checklist")
+    }
 
-        .navigationTitle(timeline.name)
+    // MARK: - Icon helpers
+    func iconForStatus(_ status: StepStatus) -> String {
+        switch status {
+        case .notStarted: return "circle"
+        case .inProgress: return "clock"
+        case .submitted: return "checkmark.circle.fill"
+        }
+    }
+
+    func colorForStatus(_ status: StepStatus) -> Color {
+        switch status {
+        case .notStarted: return .gray
+        case .inProgress: return .blue
+        case .submitted: return .green
+        }
     }
 }
 
@@ -363,18 +373,18 @@ struct TimelineStepDetail: View {
             }
 
             //manushree
-            if step.title == "Form I-20" {
-                NavigationLink(destination: FormI20InfoView()) {
-                    Text("Learn More About Form I-20")
-                        .fontWeight(.semibold)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                }
-            }
+//            if step.title == "Form I-20" {
+//                NavigationLink(destination: FormI20InfoView()) {
+//                    Text("Learn More About Form I-20")
+//                        .fontWeight(.semibold)
+//                        .padding()
+//                        .frame(maxWidth: .infinity)
+//                        .background(Color.blue)
+//                        .foregroundColor(.white)
+//                        .cornerRadius(10)
+//                        .padding(.horizontal)
+//                }
+//            }
         }
         .navigationTitle(step.title)
     }
